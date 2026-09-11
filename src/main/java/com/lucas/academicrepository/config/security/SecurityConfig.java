@@ -30,12 +30,25 @@ public class SecurityConfig {
 
         return http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors->cors.configurationSource(corsConfigurationSource))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/v1/institutions").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/faculties").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/courses").hasRole("ADMIN")
+                        //Auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
+
+                        // Endpoints Públicos de Consulta (GET)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/institutions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/faculties/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/courses/**").permitAll()
+
+                        // Documents / Swagger / Actuator (Se aplicável)
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

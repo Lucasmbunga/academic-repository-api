@@ -3,6 +3,8 @@ package com.lucas.academicrepository.config.security;
 import com.lucas.academicrepository.modules.user.dto.UserRegisterDto;
 import com.lucas.academicrepository.modules.user.dto.UserResponseDto;
 import com.lucas.academicrepository.util.ApiResponse;
+import com.lucas.academicrepository.util.ResponseUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +23,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        return ResponseEntity.ok(authService.login(loginRequestDto));
+    public ResponseEntity<ApiResponse<TokenResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request) {
+        var response=ResponseUtil.sucess(authService.login(loginRequestDto),"User logged successfully",request.getRequestURI());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponseDto>> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(userRegisterDto, "/api/v1/auth/register"));
+    public ResponseEntity<ApiResponse<UserResponseDto>> register(@Valid @RequestBody UserRegisterDto userRegisterDto, HttpServletRequest request) {
+        var response= ResponseUtil.sucess(authService.register(userRegisterDto),"User registered successfully",request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

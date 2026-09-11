@@ -8,12 +8,9 @@ import com.lucas.academicrepository.modules.academic.entity.Faculty;
 import com.lucas.academicrepository.modules.academic.entity.Institution;
 import com.lucas.academicrepository.modules.academic.repository.FacultyRepository;
 import com.lucas.academicrepository.modules.academic.repository.InstitutionRepository;
-import com.lucas.academicrepository.util.ApiResponse;
-import com.lucas.academicrepository.util.ResponseUtil;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class FacultyService {
@@ -25,26 +22,26 @@ public class FacultyService {
         this.institutionRepository = institutionRepository;
     }
 
-    public ApiResponse<List<FacultyResponseDto>> getAll(Pageable pageable, String path) {
-        List<FacultyResponseDto> faculties = facultyRepository.findAll(pageable).getContent().stream().map(this::toDto).toList();
-        return ResponseUtil.sucess(faculties, "Sucess", path);
+    public PagedModel<FacultyResponseDto> getAll(Pageable pageable) {
+        PagedModel<FacultyResponseDto> faculties = new PagedModel<>(facultyRepository.findAll(pageable).map(this::toDto));
+        return faculties;
     }
 
-    public ApiResponse<FacultyResponseDto> getById(Long id, String path) {
+    public FacultyResponseDto getById(Long id) {
         Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> new NotFoundException("Faculty not found"));
-        return ResponseUtil.sucess(toDto(faculty), "Sucess", path);
+        return toDto(faculty);
     }
 
-    public ApiResponse<List<FacultyResponseDto>> getByInstitution(Long id, String path) {
+    public PagedModel<FacultyResponseDto> getByInstitution(Long id,Pageable pageable) {
 
         Institution institution = institutionRepository.findById(id).orElseThrow(() -> new NotFoundException("Institution not found"));
-        List<FacultyResponseDto> faculties = facultyRepository.findByInstitution(institution).stream()
-                .map(this::toDto).toList();
+        PagedModel<FacultyResponseDto> faculties = new PagedModel<>(facultyRepository.findByInstitution(institution,pageable)
+                .map(this::toDto));
 
-        return ResponseUtil.sucess(faculties, "Sucess", path);
+        return faculties;
     }
 
-    public ApiResponse<FacultyResponseDto> create(FacultyCreateDto facultyCreateDto, String path) {
+    public FacultyResponseDto create(FacultyCreateDto facultyCreateDto) {
         Institution institution = institutionRepository.findById(facultyCreateDto.institutionId()).orElseThrow(() -> new NotFoundException("Institution not found"));
         Faculty newFaculty = new Faculty();
         newFaculty.setName(facultyCreateDto.name());
@@ -53,22 +50,22 @@ public class FacultyService {
 
         Faculty createdFaculty = facultyRepository.save(newFaculty);
 
-        return ResponseUtil.sucess(toDto(createdFaculty), "Faculty created sucessfully.", path);
+        return toDto(createdFaculty);
     }
 
-    public ApiResponse<FacultyResponseDto> update(Long id, FacultyUpdateDto facultyUpdateDto, String path){
-        Faculty faculty=facultyRepository.findById(id).orElseThrow(() -> new NotFoundException("Faculty not found"));
+    public FacultyResponseDto update(Long id, FacultyUpdateDto facultyUpdateDto) {
+        Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> new NotFoundException("Faculty not found"));
         faculty.setName(facultyUpdateDto.name());
         faculty.setAcronym(facultyUpdateDto.acronym());
 
-        Faculty updatedFaculty=facultyRepository.save(faculty);
-        return ResponseUtil.sucess(toDto(updatedFaculty), "Faculty updated successfully.", path);
+        Faculty updatedFaculty = facultyRepository.save(faculty);
+        return toDto(updatedFaculty);
     }
 
-    public ApiResponse<FacultyResponseDto> delete(Long id, String path) {
+    public FacultyResponseDto delete(Long id) {
         Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> new NotFoundException("Faculty not found"));
         facultyRepository.delete(faculty);
-        return ResponseUtil.sucess(toDto(faculty), "Sucess", path);
+        return toDto(faculty);
     }
 
     private FacultyResponseDto toDto(Faculty faculty) {

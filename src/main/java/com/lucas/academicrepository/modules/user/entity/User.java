@@ -1,5 +1,6 @@
 package com.lucas.academicrepository.modules.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lucas.academicrepository.modules.academic.entity.Course;
 import com.lucas.academicrepository.modules.academic.entity.Faculty;
 import com.lucas.academicrepository.modules.academic.entity.Institution;
@@ -47,6 +48,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -63,6 +65,7 @@ public class User implements UserDetails {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.isActive=true;
         if (this.role == null) this.role = Role.VISITOR;
     }
 

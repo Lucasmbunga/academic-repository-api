@@ -5,15 +5,15 @@ import com.lucas.academicrepository.modules.academic.dto.FacultyResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.FacultyUpdateDto;
 import com.lucas.academicrepository.modules.academic.service.FacultyService;
 import com.lucas.academicrepository.util.ApiResponse;
+import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/faculties")
@@ -23,29 +23,35 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FacultyResponseDto>>> getAll(@PageableDefault(sort="name",direction = Sort.Direction.DESC) Pageable pageable){
-        return  ResponseEntity.ok(facultyService.getAll(pageable,"/api/v1/faculties"));
+    public ResponseEntity<ApiResponse<PagedModel<FacultyResponseDto>>> getAll(@PageableDefault(sort="name",direction = Sort.Direction.DESC) Pageable pageable){
+        var response= ResponseUtil.sucess(facultyService.getAll(pageable),"Success","/api/v1/faculties");
+        return  ResponseEntity.ok(response);
     }
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FacultyResponseDto>> getById(@PathVariable Long id){
-        return ResponseEntity.ok(facultyService.getById(id,"/api/v1/faculties/"+id));
+        var response=ResponseUtil.sucess(facultyService.getById(id),"Success","/api/v1/faculties");
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/institutions/{institutionId}")
-    public ResponseEntity<ApiResponse<List<FacultyResponseDto>>> geBytInstitution(@PathVariable Long institutionId){
-        return ResponseEntity.ok(facultyService.getByInstitution(institutionId,"/api/v1/faculties/"+institutionId));
+    public ResponseEntity<ApiResponse<PagedModel<FacultyResponseDto>>> geBytInstitution(@PathVariable Long institutionId,Pageable pageable){
+        var response=ResponseUtil.sucess(facultyService.getByInstitution(institutionId,pageable),"Success","/api/v1/faculties");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<FacultyResponseDto>> create(@Valid @RequestBody FacultyCreateDto facultyCreateDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(facultyService.create(facultyCreateDto,"/api/v1/faculties"));
+        var response=ResponseUtil.sucess(facultyService.create(facultyCreateDto),"Faculty registered successfully.","/api/v1/faculties");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<FacultyResponseDto>> update(@PathVariable Long id, @Valid @RequestBody FacultyUpdateDto facultyUpdateDto){
-        return ResponseEntity.ok(facultyService.update(id, facultyUpdateDto,"/api/v1/faculties/"+id));
+        var response=ResponseUtil.sucess(facultyService.update(id,facultyUpdateDto),"Faculty updated successfully.","/api/v1/faculties");
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<FacultyResponseDto>> delete(@PathVariable Long id){
-        return ResponseEntity.ok(facultyService.delete(id,"/api/v1/faculties"));
+        var response=ResponseUtil.sucess(facultyService.delete(id),"Faculty deleted successfully.","/api/v1/faculties/"+id);
+        return ResponseEntity.ok(response);
     }
 }

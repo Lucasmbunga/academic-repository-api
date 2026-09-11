@@ -1,7 +1,6 @@
 package com.lucas.academicrepository.modules.academic.service;
 
 import com.lucas.academicrepository.exception.NotFoundException;
-import com.lucas.academicrepository.modules.academic.dto.CourseResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.SubjectCreateDto;
 import com.lucas.academicrepository.modules.academic.dto.SubjectResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.SubjectUpdateDto;
@@ -9,12 +8,9 @@ import com.lucas.academicrepository.modules.academic.entity.Course;
 import com.lucas.academicrepository.modules.academic.entity.Subject;
 import com.lucas.academicrepository.modules.academic.repository.CourseRepository;
 import com.lucas.academicrepository.modules.academic.repository.SubjectRepository;
-import com.lucas.academicrepository.util.ApiResponse;
-import com.lucas.academicrepository.util.ResponseUtil;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class SubjectService {
@@ -25,18 +21,18 @@ public class SubjectService {
         this.subjectRepository = subjectRepository;
     }
 
-    public ApiResponse<SubjectResponseDto> getById(Long id,String path) {
+    public SubjectResponseDto getById(Long id) {
         Subject subject=subjectRepository.findById(id).orElseThrow(()->new NotFoundException("Subject not found"));
-        return ResponseUtil.sucess(toDto(subject),"Sucess",path);
+        return toDto(subject);
     }
-    public ApiResponse<List<SubjectResponseDto>> getByCourse(Long courseId, String path) {
+    public PagedModel<SubjectResponseDto> getByCourse(Long courseId, Pageable pageable) {
         Course course = courseRepository.findById(courseId).orElseThrow(()->new NotFoundException("Course not found"));
-        List<SubjectResponseDto>  subjects=subjectRepository.findByCourse(course).stream().map(this::toDto).toList();
+        PagedModel<SubjectResponseDto>  subjects=new PagedModel<>(subjectRepository.findByCourse(course,pageable).map(this::toDto));
 
-        return ResponseUtil.sucess(subjects,"Sucess",path);
+        return subjects;
     }
 
-    public ApiResponse<SubjectResponseDto> create(SubjectCreateDto subjectCreateDto,String path) {
+    public SubjectResponseDto create(SubjectCreateDto subjectCreateDto) {
         Course course=courseRepository.findById(subjectCreateDto.courseId()).orElseThrow(()->new NotFoundException("Course not found"));
         Subject newSubject=new Subject();
         newSubject.setName(subjectCreateDto.name());
@@ -45,24 +41,24 @@ public class SubjectService {
         newSubject.setCourse(course);
 
         Subject createdSubject=subjectRepository.save(newSubject);
-        return ResponseUtil.sucess(toDto(createdSubject),"Subject created sucessfully",path);
+        return toDto(createdSubject);
     }
 
-    public ApiResponse<SubjectResponseDto> update(Long id, SubjectUpdateDto subjectUpdateDto, String path) {
+    public SubjectResponseDto update(Long id, SubjectUpdateDto subjectUpdateDto) {
         Subject subject=subjectRepository.findById(id).orElseThrow(()->new NotFoundException("Subject not found"));
         subject.setName(subjectUpdateDto.name());
         subject.setSemester(subjectUpdateDto.semester());
         subject.setAcademicYear(subjectUpdateDto.academicYear());
 
         Subject updatedSubject=subjectRepository.save(subject);
-        return ResponseUtil.sucess(toDto(updatedSubject),"Subject updated sucessfully",path);
+        return toDto(updatedSubject);
 
     }
 
-    public ApiResponse<SubjectResponseDto> delete(Long id, String path) {
+    public SubjectResponseDto delete(Long id) {
         Subject subject=subjectRepository.findById(id).orElseThrow(()->new NotFoundException("Subject not found"));
         subjectRepository.delete(subject);
-        return ResponseUtil.sucess(toDto(subject),"Subject deleted sucessfully",path);
+        return toDto(subject);
     }
     private SubjectResponseDto toDto(Subject subject) {
         return new SubjectResponseDto(subject.getId(), subject.getName(),subject.getAcademicYear(),subject.getSemester(),subject.getCourse().getName());

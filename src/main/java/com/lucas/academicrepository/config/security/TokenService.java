@@ -11,40 +11,45 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
 
     @Value("${api.security.token.secret}")
     private String secret;
+    private static final String ISSUER = "academic-repository-api";
+
 
     public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer("auth0")
+                    .withIssuer(ISSUER)
                     .withSubject(user.getEmail())
+                    .withClaim("id", user.getId())
+                    .withClaim("role", user.getRole().name())
                     .withExpiresAt(getExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new JWTCreationException("Token creation failed.", exception);
+            throw new JWTCreationException("Error while genetating authenticatioin token.", exception);
         }
     }
 
     public Instant getExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("+01"));
+        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
 
     public String validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer("auth0")
+                    .withIssuer(ISSUER)
                     .build()
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            throw new JWTVerificationException("Token validation failed", exception);
+            return "";
         }
     }
 }

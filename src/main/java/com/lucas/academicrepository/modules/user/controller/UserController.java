@@ -4,13 +4,13 @@ import com.lucas.academicrepository.modules.user.dto.UserResponseDto;
 import com.lucas.academicrepository.modules.user.dto.UserUpdateDto;
 import com.lucas.academicrepository.modules.user.service.UserService;
 import com.lucas.academicrepository.util.ApiResponse;
+import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -21,36 +21,43 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAll(@PageableDefault(sort="name") Pageable pageable){
-        return ResponseEntity.ok(userService.getAll(pageable,"/api/v1/users"));
+    public ResponseEntity<ApiResponse<PagedModel<UserResponseDto>>> getAll(@PageableDefault(sort="name") Pageable pageable){
+        var response= ResponseUtil.sucess(userService.getAll(pageable),"Success","/api/v1/users");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> getById(@PathVariable Long id){
-        return ResponseEntity.ok(userService.getById(id,"/api/v1/users/"+id));
+        var response=ResponseUtil.sucess(userService.getById(id),"Success","/api/v1/users/"+id);
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/institutions/{id}")
-    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getByInstitution(@PathVariable Long id){
-        return ResponseEntity.ok(userService.getByInstitution(id,"/api/v1/users/institutions/"+id));
+    public ResponseEntity<ApiResponse<PagedModel<UserResponseDto>>> getByInstitution(@PathVariable Long id,@PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(userService.getByInstitution(id, pageable),"Success","/api/v1/users/"+id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/faculties/{id}")
-    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getByFaculty(@PathVariable Long id){
-        return ResponseEntity.ok(userService.getByFaculty(id,"/api/v1/users/faculties/"+id));
+    public ResponseEntity<ApiResponse<PagedModel<UserResponseDto>>> getByFaculty(@PathVariable Long id,@PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(userService.getByFaculty(id, pageable),"Success","/api/v1/users");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/courses/{id}")
-    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getByCourse(@PathVariable Long id){
-        return ResponseEntity.ok(userService.getByCourse(id,"/api/v1/users/courses/"+id));
+    public ResponseEntity<ApiResponse<PagedModel<UserResponseDto>>> getByCourse(@PathVariable Long id,@PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(userService.getByCourse(id, pageable),"Success","/api/v1/users");
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> update(@PathVariable Long id,@Valid @RequestBody UserUpdateDto userUpdateDto){
-        return ResponseEntity.ok(userService.update(id,userUpdateDto,"/api/v1/users/"+id));
+        var response=ResponseUtil.sucess(userService.update(id, userUpdateDto),"User updated successfully","/api/v1/users/"+id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> deleteById(@PathVariable Long id){
-        return ResponseEntity.ok(userService.delete(id,"/api/v1/users/"+id));
+        var response=ResponseUtil.sucess(userService.delete(id),"User deleted successfully","/api/v1/users/"+id);
+        return ResponseEntity.ok(response);
     }
 }

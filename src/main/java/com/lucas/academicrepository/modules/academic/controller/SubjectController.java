@@ -5,12 +5,14 @@ import com.lucas.academicrepository.modules.academic.dto.SubjectResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.SubjectUpdateDto;
 import com.lucas.academicrepository.modules.academic.service.SubjectService;
 import com.lucas.academicrepository.util.ApiResponse;
+import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/subjects")
@@ -22,26 +24,31 @@ public class SubjectController {
     }
 
     @GetMapping("/courses/{courseId}")
-    public ResponseEntity<ApiResponse<List<SubjectResponseDto>>> getByCourse(@PathVariable Long courseId)
+    public ResponseEntity<ApiResponse<PagedModel<SubjectResponseDto>>> getByCourse(@PathVariable Long courseId, @PageableDefault Pageable pageable)
     {
-        return ResponseEntity.ok(subjectService.getByCourse(courseId,"/api/v1/subjects/courses/"+courseId));
+        var response=ResponseUtil.sucess(subjectService.getByCourse(courseId,pageable),"Success","/api/v1/subjects");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubjectResponseDto>> getById(@PathVariable Long id){
-        return ResponseEntity.ok(subjectService.getById(id,"/api/v1/subjects/"+id));
+        var response= ResponseUtil.sucess(subjectService.getById(id),"Success","/api/v1/subjects/"+id);
+        return ResponseEntity.ok(response);
     }
     @PostMapping
     public ResponseEntity<ApiResponse<SubjectResponseDto>> create(@Valid @RequestBody SubjectCreateDto subjectCreateDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.create(subjectCreateDto,"/api/v1/subjects/"));
+        var response=ResponseUtil.sucess(subjectService.create(subjectCreateDto),"Subject registered successfully","/api/v1/subjects");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SubjectResponseDto>> update(@PathVariable Long id, @Valid @RequestBody SubjectUpdateDto subjectUpdateDto){
-        return ResponseEntity.ok(subjectService.update(id,subjectUpdateDto,"/api/v1/subjects/"+id));
+        var response=ResponseUtil.sucess(subjectService.update(id,subjectUpdateDto),"Subject updated successfully","/api/v1/subjects/"+id);
+        return ResponseEntity.ok(response);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<SubjectResponseDto>> delete(@PathVariable Long id){
-        return ResponseEntity.ok(subjectService.delete(id,"/api/v1/subjects/"+id));
+        var response=ResponseUtil.sucess(subjectService.delete(id),"Subject deleted successfully","/api/v1/subjects/"+id);
+        return ResponseEntity.ok(response);
     }
 }

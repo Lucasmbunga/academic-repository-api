@@ -8,12 +8,9 @@ import com.lucas.academicrepository.modules.academic.entity.Course;
 import com.lucas.academicrepository.modules.academic.entity.Faculty;
 import com.lucas.academicrepository.modules.academic.repository.CourseRepository;
 import com.lucas.academicrepository.modules.academic.repository.FacultyRepository;
-import com.lucas.academicrepository.util.ApiResponse;
-import com.lucas.academicrepository.util.ResponseUtil;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CourseService {
@@ -25,24 +22,23 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
-    public ApiResponse<List<CourseResponseDto>> getAll(Pageable pageable, String path) {
-
-        List<CourseResponseDto> courses = courseRepository.findAll(pageable).map(this::toDto).toList();
-        return ResponseUtil.sucess(courses, "Sucess", path);
+    public PagedModel<CourseResponseDto> getAll(Pageable pageable) {
+        PagedModel<CourseResponseDto> courses = new PagedModel<>(courseRepository.findAll(pageable).map(this::toDto));
+        return courses;
     }
 
-    public ApiResponse<CourseResponseDto> getById(Long id, String path) {
+    public CourseResponseDto getById(Long id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new NotFoundException("Course not found"));
-        return ResponseUtil.sucess(toDto(course), "Sucess", path);
+        return toDto(course);
     }
 
-    public ApiResponse<List<CourseResponseDto>> getByFaculty(Long id, String path) {
+    public PagedModel<CourseResponseDto> getByFaculty(Long id,Pageable pageable) {
         Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> new NotFoundException("Faculty not found"));
-        List<CourseResponseDto> courses = courseRepository.findByFaculty(faculty).stream().map(this::toDto).toList();
-        return ResponseUtil.sucess(courses, "Sucess", path);
+        PagedModel<CourseResponseDto> courses = new PagedModel<>(courseRepository.findByFaculty(faculty,pageable).map(this::toDto));
+        return courses;
     }
 
-    public ApiResponse<CourseResponseDto> create(CourseCreateDto courseCreateDto, String path) {
+    public CourseResponseDto create(CourseCreateDto courseCreateDto) {
         Faculty faculty = facultyRepository.findById(courseCreateDto.facultyId()).orElseThrow(() -> new NotFoundException("Faculty not found"));
         if (courseRepository.existsByFacultyAndName(faculty, courseCreateDto.name())){
             throw new IllegalStateException("Course name already exists in Selected faculty");
@@ -51,14 +47,15 @@ public class CourseService {
         Course newCourse = new Course();
         newCourse.setName(courseCreateDto.name());
         newCourse.setDegree(courseCreateDto.degree());
+        newCourse.setDuration(courseCreateDto.duration());
         newCourse.setFaculty(faculty);
 
         Course savedCourse = courseRepository.save(newCourse);
 
-        return ResponseUtil.sucess(toDto(savedCourse), "Sucess", path);
+        return toDto(savedCourse);
     }
 
-    public ApiResponse<CourseResponseDto> update(Long id, CourseUpdateDto courseUpdateDto, String path) {
+    public CourseResponseDto update(Long id, CourseUpdateDto courseUpdateDto) {
         Course course=courseRepository.findById(id).orElseThrow(() -> new NotFoundException("Course not found"));
 
         if (!course.getName().equals(courseUpdateDto.name()) && courseRepository.existsByFacultyAndName(course.getFaculty(), courseUpdateDto.name())){
@@ -69,12 +66,12 @@ public class CourseService {
         course.setDegree(courseUpdateDto.degree());
         course.setDuration(courseUpdateDto.duration());
         Course updatedCourse= courseRepository.save(course);
-        return ResponseUtil.sucess(toDto(updatedCourse), "Sucess", path);
+        return toDto(updatedCourse);
     }
-    public ApiResponse<CourseResponseDto> delete(Long id, String path) {
+    public CourseResponseDto delete(Long id) {
         Course course= courseRepository.findById(id).orElseThrow(() -> new NotFoundException("Course not found"));
         courseRepository.delete(course);
-        return ResponseUtil.sucess(toDto(course), "Course deleted sucessfully.", path);
+        return toDto(course);
     }
 
     private CourseResponseDto toDto(Course course) {
