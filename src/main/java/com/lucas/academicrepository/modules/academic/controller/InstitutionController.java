@@ -1,8 +1,12 @@
 package com.lucas.academicrepository.modules.academic.controller;
 
+import com.lucas.academicrepository.modules.academic.dto.FacultyResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.InstitutionCreateDto;
 import com.lucas.academicrepository.modules.academic.dto.InstitutionResponseDto;
+import com.lucas.academicrepository.modules.academic.service.FacultyService;
 import com.lucas.academicrepository.modules.academic.service.InstitutionService;
+import com.lucas.academicrepository.modules.document.dto.DocumentResponseDto;
+import com.lucas.academicrepository.modules.document.service.DocumentService;
 import com.lucas.academicrepository.util.ApiResponse;
 import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
@@ -17,8 +21,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/institutions")
 public class InstitutionController {
     private final InstitutionService institutionService;
-    public InstitutionController(InstitutionService institutionService) {
+    private final FacultyService facultyService;
+    private final DocumentService documentService;
+    public InstitutionController(InstitutionService institutionService,FacultyService facultyService,DocumentService documentService) {
         this.institutionService = institutionService;
+        this.facultyService = facultyService;
+        this.documentService = documentService;
     }
 
     @GetMapping
@@ -30,6 +38,17 @@ public class InstitutionController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<InstitutionResponseDto>> getInstitutionById(@PathVariable Long id){
         var response= ResponseUtil.sucess(institutionService.getById(id),"Succes","/api/v1/institutions/"+id);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/{id}/faculties")
+    public ResponseEntity<ApiResponse<PagedModel<FacultyResponseDto>>> getFacultiesBytInstitution(@PathVariable Long id, Pageable pageable){
+        var response=ResponseUtil.sucess(facultyService.getByInstitution(id,pageable),"Success","/api/v1/institutions/"+id+"/faculties");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<ApiResponse<PagedModel<DocumentResponseDto>>> getDocumentsBytInstitution(@PathVariable Long id, Pageable pageable){
+        var response=ResponseUtil.sucess(documentService.getByInstitution(id,pageable),"Success","/api/v1/institutions/"+id+"/faculties");
         return ResponseEntity.ok(response);
     }
 

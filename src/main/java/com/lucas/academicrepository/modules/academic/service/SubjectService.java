@@ -21,6 +21,10 @@ public class SubjectService {
         this.subjectRepository = subjectRepository;
     }
 
+    public  PagedModel<SubjectResponseDto> getAll(Pageable pageable){
+        PagedModel<SubjectResponseDto>   subjects=new PagedModel<>(subjectRepository.findAll(pageable).map(this::toDto));
+        return subjects;
+    }
     public SubjectResponseDto getById(Long id) {
         Subject subject=subjectRepository.findById(id).orElseThrow(()->new NotFoundException("Subject not found"));
         return toDto(subject);

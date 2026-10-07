@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/institutions/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/faculties/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/courses/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/subjects/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/documents/**").permitAll()
 
                         // Documents / Swagger / Actuator (Se aplicável)
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

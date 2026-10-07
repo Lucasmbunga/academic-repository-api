@@ -4,5 +4,5 @@ import com.lucas.academicrepository.modules.academic.repository.SubjectRepositor
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record SubjectCreateDto(@NotNull @NotBlank String name,@NotNull Integer academicYear,Integer semester,@NotNull Long courseId) {
+public record SubjectCreateDto(@NotNull @NotBlank String name,Integer academicYear,Integer semester,@NotNull Long courseId) {
 }

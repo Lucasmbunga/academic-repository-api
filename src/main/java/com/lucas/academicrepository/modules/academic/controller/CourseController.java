@@ -3,7 +3,11 @@ package com.lucas.academicrepository.modules.academic.controller;
 import com.lucas.academicrepository.modules.academic.dto.CourseCreateDto;
 import com.lucas.academicrepository.modules.academic.dto.CourseResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.CourseUpdateDto;
+import com.lucas.academicrepository.modules.academic.dto.SubjectResponseDto;
 import com.lucas.academicrepository.modules.academic.service.CourseService;
+import com.lucas.academicrepository.modules.academic.service.SubjectService;
+import com.lucas.academicrepository.modules.document.dto.DocumentResponseDto;
+import com.lucas.academicrepository.modules.document.service.DocumentService;
 import com.lucas.academicrepository.util.ApiResponse;
 import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
@@ -18,8 +22,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/courses")
 public class CourseController {
     private final CourseService courseService;
-    public CourseController(CourseService courseService) {
+    private final SubjectService subjectService;
+    private final DocumentService documentService;
+    public CourseController(CourseService courseService,SubjectService subjectService,DocumentService documentService) {
         this.courseService = courseService;
+        this.subjectService = subjectService;
+        this.documentService = documentService;
     }
 
     @GetMapping
@@ -32,9 +40,15 @@ public class CourseController {
         var response=ResponseUtil.sucess(courseService.getById(id),"Success","/api/v1/courses/"+id);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/faculties/{id}")
-    public ResponseEntity<ApiResponse<PagedModel<CourseResponseDto>>> getByFaculty(@PathVariable Long id,@PageableDefault Pageable pageable){
-        var response=ResponseUtil.sucess(courseService.getByFaculty(id,pageable),"Success","/api/v1/courses/"+id);
+    @GetMapping("/{id}/subjects")
+    public ResponseEntity<ApiResponse<PagedModel<SubjectResponseDto>>> getSubjectsByCourse(@PathVariable Long id, @PageableDefault Pageable pageable) {
+        var response = ResponseUtil.sucess(subjectService.getByCourse(id, pageable), "Success", "/api/v1/courses/"+id+"/subjects");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<ApiResponse<PagedModel<DocumentResponseDto>>> getDocumentsByCourse(@PathVariable Long id, @PageableDefault Pageable pageable) {
+        var response=ResponseUtil.sucess(documentService.getByCourse(id, pageable),"Success","/api/v1/courses/"+id+"/documents");
         return ResponseEntity.ok(response);
     }
     @PostMapping

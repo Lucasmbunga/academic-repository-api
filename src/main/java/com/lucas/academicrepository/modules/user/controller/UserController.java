@@ -1,5 +1,7 @@
 package com.lucas.academicrepository.modules.user.controller;
 
+import com.lucas.academicrepository.modules.document.dto.DocumentResponseDto;
+import com.lucas.academicrepository.modules.document.service.DocumentService;
 import com.lucas.academicrepository.modules.user.dto.UserResponseDto;
 import com.lucas.academicrepository.modules.user.dto.UserUpdateDto;
 import com.lucas.academicrepository.modules.user.service.UserService;
@@ -16,8 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
-    public UserController(UserService userService) {
+    private final DocumentService documentService;
+    public UserController(UserService userService,DocumentService documentService) {
         this.userService = userService;
+        this.documentService = documentService;
     }
 
     @GetMapping
@@ -46,6 +50,12 @@ public class UserController {
     @GetMapping("/courses/{id}")
     public ResponseEntity<ApiResponse<PagedModel<UserResponseDto>>> getByCourse(@PathVariable Long id,@PageableDefault Pageable pageable){
         var response=ResponseUtil.sucess(userService.getByCourse(id, pageable),"Success","/api/v1/users");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<ApiResponse<PagedModel<DocumentResponseDto>>> getDocumentsByUser(@PathVariable Long id,@PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(documentService.getByUploader(id, pageable),"Success","/api/v1/users/"+id+"/documents");
         return ResponseEntity.ok(response);
     }
 

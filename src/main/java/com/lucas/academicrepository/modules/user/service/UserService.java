@@ -72,6 +72,10 @@ public class UserService {
         }
 
         User newUser = new User();
+        System.out.println(userRegisterDto.role());
+        System.out.println(userRegisterDto.institutionId());
+        System.out.println(userRegisterDto.facultyId());
+        System.out.println(userRegisterDto.courseId());
         if (!(userRegisterDto.role() == Role.VISITOR)) {
             Institution institution = institutionRepository.findById(userRegisterDto.institutionId()).orElseThrow(() -> new NotFoundException("Institution not found"));
             Faculty faculty = facultyRepository.findById(userRegisterDto.facultyId()).orElseThrow(() -> new NotFoundException("Faculty not found"));

@@ -1,9 +1,13 @@
 package com.lucas.academicrepository.modules.academic.controller;
 
+import com.lucas.academicrepository.modules.academic.dto.CourseResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.FacultyCreateDto;
 import com.lucas.academicrepository.modules.academic.dto.FacultyResponseDto;
 import com.lucas.academicrepository.modules.academic.dto.FacultyUpdateDto;
+import com.lucas.academicrepository.modules.academic.service.CourseService;
 import com.lucas.academicrepository.modules.academic.service.FacultyService;
+import com.lucas.academicrepository.modules.document.dto.DocumentResponseDto;
+import com.lucas.academicrepository.modules.document.service.DocumentService;
 import com.lucas.academicrepository.util.ApiResponse;
 import com.lucas.academicrepository.util.ResponseUtil;
 import jakarta.validation.Valid;
@@ -19,8 +23,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/faculties")
 public class FacultyController {
     private final FacultyService facultyService;
-    public FacultyController(FacultyService facultyService) {
+    private  final CourseService courseService;
+    private final DocumentService documentService;
+    public FacultyController(FacultyService facultyService,CourseService courseService,DocumentService documentService) {
         this.facultyService = facultyService;
+        this.courseService = courseService;
+        this.documentService = documentService;
     }
     @GetMapping
     public ResponseEntity<ApiResponse<PagedModel<FacultyResponseDto>>> getAll(@PageableDefault(sort="name",direction = Sort.Direction.DESC) Pageable pageable){
@@ -32,9 +40,15 @@ public class FacultyController {
         var response=ResponseUtil.sucess(facultyService.getById(id),"Success","/api/v1/faculties");
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/institutions/{institutionId}")
-    public ResponseEntity<ApiResponse<PagedModel<FacultyResponseDto>>> geBytInstitution(@PathVariable Long institutionId,Pageable pageable){
-        var response=ResponseUtil.sucess(facultyService.getByInstitution(institutionId,pageable),"Success","/api/v1/faculties");
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<ApiResponse<PagedModel<CourseResponseDto>>> getCoursesByFaculty(@PathVariable Long id,@PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(courseService.getByFaculty(id,pageable),"Success","/api/v1/faculties/"+id+"/courses");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<ApiResponse<PagedModel<DocumentResponseDto>>> getDocumentsByFaculty(@PathVariable Long id, @PageableDefault Pageable pageable){
+        var response=ResponseUtil.sucess(documentService.getByFaculty(id,pageable),"Success","/api/v1/faculties/"+id+"/courses");
         return ResponseEntity.ok(response);
     }
 

@@ -18,6 +18,19 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(
+        name = "Document.fullDetails",
+        attributeNodes = {
+                @NamedAttributeNode(value = "user"),
+                @NamedAttributeNode(value = "subject", subgraph = "subject-course")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "subject-course",
+                        attributeNodes = @NamedAttributeNode("course")
+                )
+        }
+)
 public class Document {
 
     @Id
