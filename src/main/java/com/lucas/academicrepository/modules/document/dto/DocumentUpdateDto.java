@@ -1,9 +1,12 @@
 package com.lucas.academicrepository.modules.document.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public record DocumentUpdateDto(
-        String title,
-        String description,
+        @NotNull String title,
+        @NotNull String description,
         String teacherName,
         Integer academicYear,
         Boolean isSolved
-) {}
+) {
+}

@@ -78,14 +78,14 @@ public class DocumentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<DocumentResponseDto>> updateDocument(@PathVariable Long id,@RequestBody DocumentUpdateDto dto,@AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<ApiResponse<DocumentResponseDto>> updateDocument(@PathVariable Long id,@Valid @RequestBody DocumentUpdateDto dto,@AuthenticationPrincipal User authenticatedUser) {
         var response=ResponseUtil.sucess(documentService.updateDocument(id,dto,authenticatedUser),"Document updated successfully","/api/v1/documents/"+id);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('MODERATOR', 'ADMINISTRATOR')")
-    public ResponseEntity<ApiResponse<DocumentResponseDto>> updateDocumentStatus(@PathVariable Long id, @RequestBody DocumentStatusUpdateDto documentStatus,@AuthenticationPrincipal User user){
+    public ResponseEntity<ApiResponse<DocumentResponseDto>> updateDocumentStatus(@PathVariable Long id,@Valid @RequestBody DocumentStatusUpdateDto documentStatus,@AuthenticationPrincipal User user){
         var response=ResponseUtil.sucess(documentService.updateDocumentStatus(id,documentStatus,user),"Document status updated successfully","/api/v1/documents/"+id+"/status");
         return ResponseEntity.ok(response);
     }

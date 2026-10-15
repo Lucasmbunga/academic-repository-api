@@ -26,7 +26,6 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -118,7 +117,7 @@ public class DocumentService {
         return getPageModel(documentRepository.findAllByUserId(uploaderId, pageable));
     }
 
-    public PagedModel<DocumentResponseDto>  getByTitleOrDescriptionContaining(@RequestParam(name = "query") String topic, Pageable pageable) {
+    public PagedModel<DocumentResponseDto>  getByTitleOrDescriptionContaining( String topic, Pageable pageable) {
         return getPageModel(documentRepository.findByTitleOrDescriptionContainingIgnoreCase(topic,topic,pageable));
     }
 
@@ -130,7 +129,7 @@ public class DocumentService {
 
         String hashSha256 = calculateHash(dto.file());
         if(documentRepository.existsByHashSha256(hashSha256)){
-            throw new BusinessRuleException("The document file already exists(Duplicated file was found)");
+            throw new BusinessRuleException("The document file already exists(Duplicated file was found");
         }
 
         Subject subject = getSubject(dto.subjectId());
